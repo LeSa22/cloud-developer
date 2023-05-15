@@ -1,6 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
+import { Request, Response } from 'express';
 
 (async () => {
 
@@ -28,7 +29,19 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
 
   /**************************************************************************** */
+  app.get("/filteredimage", async (req: Request, res: Response) => {
+    const image_url: string  = req.query.image_url as string;
 
+    try {
+      const filteredImage: string = await filterImageFromURL(image_url);
+      res.sendFile(filteredImage, () =>
+        deleteLocalFiles([filteredImage])
+      );
+    } catch (e) {
+      console.error(e);
+      res.status(422).send('Unprocessable Content');
+    }
+  });
   //! END @TODO1
   
   // Root Endpoint
